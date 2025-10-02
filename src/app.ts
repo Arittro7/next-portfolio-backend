@@ -11,14 +11,14 @@ app.use(express.json()); // Parse incoming JSON requests
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "http://localhost:5000",
     credentials: true,
   })
 );
 
 // Default route for testing
 app.get("/", (_req, res) => {
-  res.send("API is running");
+  res.send("NextJS Portfolio Is Running.🌴 Powered by সহজ সরল প্রতারণার মঞ্চ😛");
 });
 
 
