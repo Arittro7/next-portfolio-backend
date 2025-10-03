@@ -5,8 +5,7 @@ import { UserService } from "./user.service";
 const createUser = async(req: Request, res:Response) => {
   try {
     const result = await UserService.createUser(req.body)
-    console.log(result);
-    console.log('Console from user controller');
+    res.send(result)
   } catch (error) {
     console.log(error);
   }
