@@ -36,8 +36,40 @@ const getAllBlogs = async() =>{
   return result
 }
 
+const getBlogById = async (id: number) => {
+  const result = await prisma.blog.findUnique({
+    where:{
+      id
+    }
+  })
+  return result
+}
+
+const updateBlog = async(id: number, payload:Partial<Blog>) =>{
+  const result = await prisma.blog.update({
+    where: {
+      id
+    },
+    data: payload
+  })
+  return result
+}
+
+// delete Blog
+const deleteBlog = async(id:number) =>{
+  await prisma.blog.delete({
+    where:{
+      id
+    }
+  })
+  return ("Blog deleted Successfully")
+}
+
 
 export const BlogService = {
   createBlog,
-  getAllBlogs
+  getAllBlogs,
+  getBlogById,
+  updateBlog,
+  deleteBlog
 }
