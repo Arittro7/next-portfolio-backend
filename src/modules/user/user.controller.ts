@@ -20,8 +20,19 @@ const getAllUser = async(req: Request, res:Response) => {
   }
 }
 
+// get user by id
+const getUserById = async(req: Request, res: Response) =>{
+  try {
+    const result = await UserService.getUserById(Number(req.params.id))
+    res.status(201).json(result)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+}
+
 
 export const UserController = {
   createUser,
-  getAllUser
+  getAllUser,
+  getUserById
 }
