@@ -2,21 +2,21 @@ import { Blog, Prisma } from "@prisma/client"
 import { prisma } from "../../config/db"
 
 
-const createBlog = async (payload: Prisma.BlogCreateInput): Promise<Blog> => {
+const createBlog = async(payload: Prisma.BlogCreateInput): Promise<Blog> =>{
   const result = await prisma.blog.create({
-    data: payload,
+    data:payload,
     include:{
       author:{
-        select: {
-          id: true,
-          name: true,
+        select:{
+          id:true,
+          name:true,
           email:true
         }
       }
     }
-  });
-  return result;
-};
+  })
+  return result
+}
 
 
 export const BlogService = {
