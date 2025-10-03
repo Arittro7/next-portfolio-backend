@@ -62,9 +62,22 @@ const deleteUser = async(id: number) =>{
   return result
 }
 
+// Update User 
+const updateUser = async(id: number, payload: Partial<User>) =>{
+  const result = await prisma.user.update({
+    where:{
+      id
+    },
+    data: payload
+  })
+  return result
+}
+
+
 export const UserService = {
   createUser,
   getAllUser,
   getUserById,
-  deleteUser
+  deleteUser,
+  updateUser
 };
