@@ -4,6 +4,7 @@ import { BlogController } from './blog.controller'
 const router = express.Router()
 
 router.post("/", BlogController.createBlog)
+router.get("/", BlogController.getAllBlogs)
 
 
 export const blogRouter = router
