@@ -30,9 +30,20 @@ const getUserById = async(req: Request, res: Response) =>{
   }
 }
 
+// get user by id
+const deleteUser = async(req: Request, res: Response) =>{
+  try {
+    const result = await UserService.deleteUser(Number(req.params.id))
+    res.status(201).json(result)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+}
+
 
 export const UserController = {
   createUser,
   getAllUser,
-  getUserById
+  getUserById,
+  deleteUser
 }
