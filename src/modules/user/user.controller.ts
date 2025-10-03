@@ -11,7 +11,17 @@ const createUser = async(req: Request, res:Response) => {
   }
 }
 
+const getAllUser = async(req: Request, res:Response) => {
+  try {
+    const result = await UserService.getAllUser()
+    res.send(result)
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 
 export const UserController = {
-  createUser
+  createUser,
+  getAllUser
 }
