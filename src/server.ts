@@ -2,6 +2,7 @@ import http, { Server } from "http";
 import app from "./app";
 import dotenv from "dotenv";
 import { prisma } from "./config/db";
+import { seedAdmin } from "./utils/seedAdmin";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ async function startServer() {
     });
 
     handleProcessEvents();
+    await seedAdmin()
   } catch (error) {
     console.error("❌ Error during server startup:", error);
     process.exit(1);
