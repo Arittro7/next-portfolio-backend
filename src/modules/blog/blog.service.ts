@@ -18,32 +18,85 @@ const createBlog = async(payload: Prisma.BlogCreateInput): Promise<Blog> =>{
   return result
 }
 
-const getAllBlogs = async() =>{
+const getAllBlogs = async({
+  page = 1,
+  limit = 10,
+  search,
+  isFeatured,
+  tags,
+  sortBy,
+  orderBy,
+}: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isFeatured?: boolean;
+  tags?: string[];
+  sortBy?: string;
+  orderBy?: string;
+}) =>{
+  const skip = (page - 1) * limit;
+
+  console.log({ isFeatured });
+  const where: any = {
+    AND: [
+      search && {
+        OR: [
+          { title: { contains: search, mode: "insensitive" } },
+          { content: { contains: search, mode: "insensitive" } },
+        ],
+      },
+      typeof isFeatured === "boolean" && { isFeatured },
+      tags && tags.length > 0 && { tags: { hasEvery: tags } },
+    ].filter(Boolean),
+  };
+
   const result = await prisma.blog.findMany({
-    select:{
-    id:true,
-    title: true,
-    content:true,
-    thumbnail:true,
-    tags:true,
-    isFeatured:true,
-    view:true
+    skip,
+    take: limit,
+    where,
+    orderBy: sortBy
+      ? { [sortBy as string]: orderBy === "desc" ? "desc" : "asc" }
+      : undefined,
+  });
+
+  const total = await prisma.blog.count({ where });
+
+  return {
+    data: result,
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     },
-    orderBy:{
-      createdAt: "desc"
-    }
-  })
-  return result
-}
+  };
+};
 
 const getBlogById = async (id: number) => {
-  const result = await prisma.blog.findUnique({
-    where:{
-      id
-    }
-  })
-  return result
-}
+  return await prisma.$transaction(async (tx) => {
+    await tx.blog.update({
+      where: { id },
+      data: {
+        view: {
+          increment: 1,
+        },
+      },
+    });
+
+    return await tx.blog.findUnique({
+      where: {id},
+      include: {
+        author:{
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      },
+    });
+  });
+};
 
 const updateBlog = async(id: number, payload:Partial<Blog>) =>{
   const result = await prisma.blog.update({
@@ -64,6 +117,7 @@ const deleteBlog = async(id:number) =>{
   })
   return ("Blog deleted Successfully")
 }
+
 
 
 export const BlogService = {
