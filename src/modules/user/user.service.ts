@@ -1,13 +1,28 @@
+import  bcryptjs  from 'bcryptjs';
 import { Prisma, User } from "@prisma/client";
 import { prisma } from "../../config/db";
+import { envVars } from "../../config/env.config";
 
 const createUser = async (payload: Prisma.UserCreateInput): Promise<User> => {
-  console.log(payload);
-  const createUser = await prisma.user.create({
-    data: payload,
+  let hashedPassword: string | undefined = undefined;
+
+  if (payload.password) {
+    hashedPassword = await bcryptjs.hash(
+      payload.password,
+      Number(envVars.BCRYPT_SALT_ROUND)
+    );
+  }
+
+  const newUser = await prisma.user.create({
+    data: {
+      ...payload,
+      password: hashedPassword,
+    },
   });
-  return createUser;
+
+  return newUser;
 };
+
 
 const getAllUser = async () => {
   const result = await prisma.user.findMany({

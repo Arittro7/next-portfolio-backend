@@ -1,36 +1,25 @@
-import { Prisma, User } from "@prisma/client";
+import { Prisma} from "@prisma/client";
 import AppError from "../../errorHandler/appError"
 import { prisma } from "../../config/db";
 import bcryptjs from "bcryptjs"
-import { Response } from "express";
+import { envVars } from "../../config/env.config";
+import { generateToken } from "../../utils/jwt";
 
-const loginWithEmailAndPassword = async (res: Response, payload: Partial<User>) => {
-  const { email, password } = payload;
-
-  const isUserExist = await prisma.user.findUnique({   
-    where:{email }
-  });
-
-  if (!isUserExist) {
-    throw new AppError(401, "Email does not exist");
+const loginWithEmailAndPassword = async (payload: { email: string; password: string }) => {
+  const user = await prisma.user.findUnique({ where: { email: payload.email } });
+  if (!user) {
+    throw new AppError(401, "Invalid credentials");
   }
 
-  const isPasswordMatched = await bcryptjs.compare(
-    password as string,
-    isUserExist.password as string
-  );
-
+  const isPasswordMatched = await bcryptjs.compare(payload.password, user.password!);
   if (!isPasswordMatched) {
-    throw new AppError(401, "Incorrect Password");
+    throw new AppError(401, "Invalid credentials");
   }
 
+  const jwtPayload = { id: user.id, email: user.email, role: user.role };
+  const accessToken = generateToken(jwtPayload, envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { password: pass, ...rest } = isUserExist
-
-  return {
-    rest,
-  };
+  return { accessToken };
 };
 
 const authWithGoogle = async (data: Prisma.UserCreateInput) => {
